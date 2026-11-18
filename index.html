@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>¿Qué hay en la caja?</title>
+<meta name="theme-color" content="#f4efe7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+:root{--bg:#f4efe7;--card:#fffdf9;--ink:#2b2622;--mut:#857b71;--line:#e6ddd0;--acc:#c8553d;--ok:#3d8b5a;--out:#d9822b;--bad:#b23a3a;--r:18px}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 'DM Sans',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;padding-bottom:120px;min-height:100vh}
+h1,h2,h3,.num,.box-num{font-family:'Fraunces',Georgia,serif;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px}
+.top{position:sticky;top:0;z-index:20;background:rgba(244,239,231,.93);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid transparent}
+.top .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.top .brand{font-family:'Fraunces',serif;font-weight:800;font-size:19px;text-decoration:none;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{border:0;background:var(--card);border:1px solid var(--line);width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px}
+.demo{background:#fff3cd;border:1px solid #f0d98a;color:#6b5512;border-radius:12px;padding:10px 12px;font-size:14px;margin:6px 0 14px}
+
+/* Home */
+.hero{padding:14px 0 6px}
+.hero h1{font-size:34px;line-height:1.05;letter-spacing:-.5px}
+.hero p{color:var(--mut);margin:6px 0 16px}
+.search{position:relative}
+.search input{width:100%;padding:15px 16px 15px 46px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);font-size:17px;outline:none}
+.search input:focus{border-color:var(--ink)}
+.search::before{content:'🔎';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:17px}
+.sec-title{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:700;margin:24px 0 10px}
+.boxes{display:grid;gap:12px}
+.box-card{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px 14px;text-decoration:none;position:relative;overflow:hidden}
+.box-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c)}
+.box-card .num{width:68px;height:68px;border-radius:18px;background:var(--c);color:#fff;display:grid;place-items:center;font-size:36px;font-weight:800;flex:none;margin-left:4px}
+.box-card .info{flex:1;min-width:0}
+.box-card b{display:block;font-size:20px}
+.box-card small{display:block;color:var(--mut);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.box-card img{width:68px;height:68px;border-radius:12px;object-fit:cover;flex:none}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+.foot-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.chip-link{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 14px;font-size:14px;text-decoration:none}
+
+/* Box */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--mut);text-decoration:none;font-size:15px;margin:8px 0 10px;border:0;background:none;padding:0}
+.box-hero{background:var(--c);color:#fff;border-radius:24px;padding:20px 20px 18px;position:relative;overflow:hidden}
+.box-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.12)}
+.box-tag{font-size:12px;letter-spacing:.18em;font-weight:700;opacity:.85}
+.box-num{font-size:64px;line-height:.95;font-weight:800}
+.box-hero h1{font-size:26px;margin-top:6px}
+.box-hero p{margin:4px 0 0;opacity:.9}
+.box-hero .edit{position:absolute;right:14px;bottom:14px;z-index:1;background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:12px;padding:8px 12px;font-size:14px;font-weight:600}
+.box-photo{margin-top:12px;border-radius:var(--r);overflow:hidden;background:var(--card);border:1px dashed #cfc4b5}
+.box-photo img{display:block;width:100%;max-height:340px;object-fit:cover}
+.box-photo button{width:100%;border:0;background:none;padding:22px;color:var(--mut);font-size:15px}
+.tabs{display:flex;gap:8px;margin:18px 0 10px;overflow-x:auto}
+.tab{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;white-space:nowrap}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px;cursor:pointer}
+.item.fuera{background:#fff6ec;border-color:#f1d3b1}
+.thumb{width:64px;height:64px;border-radius:14px;background:#efe7db;display:grid;place-items:center;font-size:26px;flex:none;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.item .info{flex:1;min-width:0}
+.item b{display:block;font-weight:600;font-size:18px}
+.item small{display:block;color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{font-size:12px;font-weight:700;border-radius:999px;padding:4px 9px;white-space:nowrap}
+.pill.dentro{background:#e5f2e8;color:var(--ok)}
+.pill.fuera{background:#fde7cf;color:#a85a12}
+.pill.box{background:var(--c);color:#fff}
+.hist{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:4px 16px}
+.hist summary{padding:12px 0;font-weight:700;cursor:pointer}
+.hist ul{list-style:none;margin:0 0 12px;padding:0;font-size:14px}
+.hist li{padding:7px 0;border-top:1px solid var(--line);color:#4c443d}
+.hist li span{color:var(--mut)}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;border:0;background:var(--ink);color:#fff;border-radius:999px;padding:16px 26px;font-size:17px;font-weight:700;box-shadow:0 10px 30px rgba(43,38,34,.3)}
+
+/* Sheet */
+.sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet.hidden{display:none}
+.sheet-bg{position:absolute;inset:0;background:rgba(30,25,20,.45)}
+.sheet-card{position:relative;background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.grab{width:44px;height:5px;border-radius:9px;background:#d5cbbd;margin:2px auto 14px}
+.sheet-card h2{font-size:24px;margin-bottom:12px}
+.big-photo{width:100%;max-height:320px;object-fit:cover;border-radius:16px;margin-bottom:12px;display:block}
+.field{display:block;margin-bottom:12px}
+.field>span{display:block;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:16px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tagchk{position:relative}
+.tagchk input{position:absolute;opacity:0;pointer-events:none}
+.tagchk span{display:inline-block;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font-size:14px}
+.tagchk input:checked+span{border-color:var(--ink);background:var(--ink);color:#fff}
+.colors{display:flex;gap:10px;flex-wrap:wrap}
+.colors label{position:relative}
+.colors input{position:absolute;opacity:0}
+.colors i{display:block;width:38px;height:38px;border-radius:50%;background:var(--c);border:3px solid transparent;box-shadow:0 0 0 1px var(--line)}
+.colors input:checked+i{border-color:#fff;box-shadow:0 0 0 2.5px var(--ink)}
+.filebtn{display:flex;align-items:center;gap:10px;border:1.5px dashed #cfc4b5;border-radius:12px;padding:12px 14px;background:var(--card);color:var(--mut);font-size:15px;cursor:pointer}
+.filebtn img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+.filebtn input{display:none}
+.btns{display:grid;gap:10px;margin-top:16px}
+.btn{border:0;border-radius:14px;padding:15px;font-size:16px;font-weight:700;background:var(--card);border:1.5px solid var(--line)}
+.btn.main{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn.out{background:var(--out);color:#fff;border-color:var(--out)}
+.btn.danger{color:var(--bad);background:transparent;border-color:#e8c9c9}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.meta{color:var(--mut);font-size:14px;margin:-4px 0 12px}
+.linkbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:6px}
+.linkbox code{display:block;word-break:break-all;font-size:14px;margin:6px 0 10px}
+.linkbox ol{margin:8px 0 0;padding-left:20px;font-size:14px;color:#4c443d}
+.qr{width:150px;margin:6px auto;display:block}
+
+
+/* Categorías */
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.cat{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.cat em{font-style:normal;color:var(--mut);font-size:12px;font-weight:700}
+.cat.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cat.new{border-style:dashed;color:var(--acc);border-color:var(--acc)}
+.picker .sel{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.picker .sugs{display:flex;flex-wrap:wrap;gap:8px;max-height:190px;overflow:auto;margin-top:8px;padding:2px}
+.picker .search input{padding:12px 14px 12px 42px;font-size:16px}
+.picker .search::before{left:14px}
+.cat-hero{padding:6px 0 4px}
+.cat-hero .e{font-size:48px;line-height:1}
+.cat-hero h1{font-size:32px;margin-top:6px}
+.grp{margin-top:18px}
+.grp-h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:8px;text-decoration:none;min-width:0}
+.items,.grp{min-width:0;max-width:100%}
+html,body{overflow-x:hidden}
+.grp-h small{color:var(--mut)}
+.mic{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:20px;width:40px;height:40px;border-radius:12px}
+.mic.on{background:#fde2dc;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.5}}
+/* Alertas de cambio */
+.alerta{font-size:44px;text-align:center;margin:4px 0 6px}
+.sheet-card h2.c{text-align:center}
+.cambio{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.cambio ul{margin:8px 0 0;padding-left:20px;color:#4c443d;font-size:15px}
+.significa{background:#fff6ec;border:1.5px solid #f1d3b1;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.significa p{margin:4px 0 0;font-size:15px}
+.final{background:#fbe9e7;border:1.5px solid #efc2bb}
+.err{color:var(--bad);font-weight:700;font-size:14px;margin:-4px 0 8px}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+
+.menu-sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:700;margin:16px 0 8px}
+.menu-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px 16px;font-size:16px;font-weight:600;margin-bottom:8px;text-decoration:none}
+.menu-btn span{font-size:20px;width:26px;text-align:center}
+.opciones{margin-top:14px}
+#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:15px;font-weight:600;z-index:90;transition:transform .25s;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+#toast.show{transform:translate(-50%,0)}
+
+/* Etiquetas */
+.labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:10px}
+.label{background:#fff;border:2px solid var(--ink);border-radius:16px;padding:14px;display:flex;gap:14px;align-items:center;break-inside:avoid}
+.label .n{font-family:'Fraunces',serif;font-weight:800;font-size:64px;line-height:1;color:var(--c);min-width:70px;text-align:center}
+.label .t{flex:1}
+.label .t b{display:block;font-size:20px}
+.label .t small{color:#555;font-size:12px}
+.label svg{width:92px;height:92px;flex:none}
+@media print{
+  body{background:#fff;padding:0}
+  .top,.no-print,.fab{display:none!important}
+  .label{border-color:#000}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./" data-nav="home">📦 ¿Qué hay en la caja?</a>
+  <button class="icon-btn" data-act="menu" title="Menú" style="font-size:22px">☰</button>
+</div></header>
+<main class="wrap" id="app"></main>
+<div id="sheet" class="sheet hidden"><div class="sheet-bg" data-act="close"></div><div class="sheet-card" id="sheetCard"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ================= CONFIGURACIÓN =================
+   Pega aquí la URL de tu App web de Apps Script (termina en /exec).
+   Si la dejas vacía, la app funciona en "modo prueba" guardando todo solo en este teléfono. */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwXALS0L8uPVThhUwGQitnBQPLvG7vtTjOvZnIIbguRF4JQQaQXELigmqqB6yvSk9Ck/exec';
+const CLAVE = '1234';   // password para hacer cambios (debe ser igual al de Code.gs)
+/* ================================================= */
+
+const DEMO = !API_URL;
+const COLORES = ['#c8553d','#2a9d8f','#e0a526','#6a8d73','#7b5ea7','#3f72af','#d17a9e','#5f5a54'];
+
+/* Avisos rápidos (cómo cuidar la cosa) */
+const AVISOS = [
+  {k:'frecuente',e:'⭐',t:'Uso frecuente'},
+  {k:'fragil',e:'⚠️',t:'Frágil'},
+  {k:'humedad',e:'💧',t:'Se daña con humedad'},
+  {k:'calor',e:'🔥',t:'Se daña con calor'},
+  {k:'vence',e:'⏳',t:'Tiene fecha de vencimiento'},
+  {k:'prestado',e:'🤝',t:'Prestado'},
+  {k:'mantenimiento',e:'🔋',t:'Necesita mantenimiento'},
+  {k:'valor',e:'💎',t:'De valor'}
+];
+
+/* Categorías (para qué sirve la cosa). k = palabras extra para encontrarlas al buscar */
+const CATS = [
+  {n:'Navidad',e:'🎄',k:'arbol luces bolas nacimiento pascuas navideño'},
+  {n:'Día de Reyes',e:'👑',k:'reyes magos camellos grama'},
+  {n:'Halloween',e:'🎃',k:'disfraz calabaza'},
+  {n:'San Valentín',e:'❤️',k:'amor corazones'},
+  {n:'Semana Santa',e:'🐣',k:'pascua huevos conejo'},
+  {n:'Fiestas y cumpleaños',e:'🎉',k:'globos piñata bizcocho velitas party cumpleanos'},
+  {n:'Decoración del hogar',e:'🖼️',k:'cuadros adornos floreros cortinas'},
+  {n:'Manualidades',e:'✂️',k:'craft pega silicona foami papel tijeras goma eva'},
+  {n:'Pintura y arte',e:'🎨',k:'pinceles acrilico lienzo marcadores'},
+  {n:'Costura',e:'🧵',k:'hilo agujas tela botones maquina'},
+  {n:'Herramientas',e:'🔧',k:'martillo taladro destornillador llaves alicate'},
+  {n:'Tornillos y ferretería',e:'🔩',k:'clavos tuercas anclas pernos'},
+  {n:'Electricidad y cables',e:'🔌',k:'extension cable enchufe adaptador'},
+  {n:'Electrónicos',e:'💻',k:'cargador computadora celular audifonos tablet'},
+  {n:'Bombillas e iluminación',e:'💡',k:'focos lamparas luz'},
+  {n:'Baterías',e:'🔋',k:'pilas aa aaa pila'},
+  {n:'Plomería',e:'🚰',k:'tubos llave agua pvc'},
+  {n:'Pintura de casa',e:'🖌️',k:'rolos brochas masking sellador'},
+  {n:'Jardín y plantas',e:'🌱',k:'tiestos tierra semillas manguera abono'},
+  {n:'Limpieza',e:'🧽',k:'detergente escoba mapo cloro'},
+  {n:'Cocina',e:'🍳',k:'ollas sartenes utensilios'},
+  {n:'Vajilla y cristalería',e:'🍽️',k:'platos vasos copas tazas'},
+  {n:'Comida y despensa',e:'🥫',k:'enlatados alimentos agua'},
+  {n:'Baño y aseo',e:'🧴',k:'champu jabon toallas'},
+  {n:'Botiquín y primeros auxilios',e:'🩹',k:'curitas gasas alcohol vendas'},
+  {n:'Medicinas',e:'💊',k:'pastillas farmacia'},
+  {n:'Emergencias y huracán',e:'🌀',k:'linterna planta generador radio velas agua'},
+  {n:'Ropa',e:'👕',k:'camisas pantalones'},
+  {n:'Ropa de temporada',e:'🧥',k:'abrigos frio'},
+  {n:'Zapatos',e:'👟',k:'tenis sandalias'},
+  {n:'Accesorios y joyería',e:'💍',k:'prendas relojes carteras correas'},
+  {n:'Belleza y maquillaje',e:'💄',k:'cosmeticos secadora plancha pelo'},
+  {n:'Sábanas y toallas',e:'🛏️',k:'cama colchas almohadas'},
+  {n:'Bebé',e:'🍼',k:'biberones panales ropa de bebe'},
+  {n:'Juguetes',e:'🧸',k:'juegos muñecos'},
+  {n:'Juegos de mesa',e:'🎲',k:'cartas domino rompecabezas'},
+  {n:'Escuela y oficina',e:'✏️',k:'libretas lapices papeleria grapadora'},
+  {n:'Libros',e:'📚',k:'revistas biblias'},
+  {n:'Documentos',e:'📄',k:'papeles certificados facturas contratos'},
+  {n:'Fotos y recuerdos',e:'📸',k:'albumes cartas recuerdos'},
+  {n:'Música',e:'🎸',k:'instrumentos cuerdas pedales'},
+  {n:'Deportes',e:'⚽',k:'bola raqueta guantes'},
+  {n:'Ejercicio',e:'🏋️',k:'pesas yoga gym'},
+  {n:'Playa y camping',e:'🏖️',k:'neveras toallas casetas sillas'},
+  {n:'Viaje',e:'🧳',k:'maletas pasaporte'},
+  {n:'Mascotas',e:'🐾',k:'perro gato comida correa'},
+  {n:'Carro',e:'🚗',k:'auto aceite cables de batería'},
+  {n:'Regalos',e:'🎁',k:'regalar'},
+  {n:'Envolver regalos',e:'🎀',k:'papel de regalo lazos bolsas'},
+  {n:'Velas y aromas',e:'🕯️',k:'incienso'},
+  {n:'Mudanza',e:'📦',k:'cajas tape'},
+  {n:'Repuestos',e:'🛠️',k:'piezas partes'},
+  {n:'Varios',e:'🗂️',k:'otros'}
+];
+
+const CACHE = 'cajas-cache-v2', DEMO_KEY = 'cajas-demo-v2', QUIEN = 'cajas-quien';
+let D = {cajas:[], articulos:[], historial:[]};
+let filtro = 'todo', busqueda = '';
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const foto = (id, w=800) => !id ? '' : String(id).startsWith('data:') ? id : `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${w}`;
+const fecha = f => { if(!f) return ''; const d = new Date(f); return isNaN(d) ? '' : d.toLocaleDateString('es-PR',{day:'numeric',month:'short'}); };
+const caja = id => D.cajas.find(c => String(c.id) === String(id));
+const nomCaja = id => { const c = caja(id); return `Caja ${id}` + (c ? ` (${c.nombre})` : ''); };
+const artsDe = id => D.articulos.filter(a => String(a.cajaId) === String(id) && a.estado !== 'botado');
+const color = c => (c && c.color) || COLORES[(Number(c && c.id) - 1 + COLORES.length) % COLORES.length] || COLORES[0];
+const enlace = id => location.origin + location.pathname + '?c=' + id;
+const ordenCajas = () => [...D.cajas].sort((a,b) => Number(a.id) - Number(b.id));
+const avisosDe = a => String(a.etiquetas||'').split(',').map(k => AVISOS.find(e => e.k === k.trim())).filter(Boolean);
+const avisosTxt = s => String(s||'').split(',').map(k => AVISOS.find(e => e.k === k.trim())).filter(Boolean).map(e => e.e + ' ' + e.t).join(', ');
+const catsDe = a => String(a.categorias||'').split('|').map(s => s.trim()).filter(Boolean);
+const catInfo = n => CATS.find(c => norm(c.n) === norm(n));
+const catE = n => (catInfo(n) || {e:'🏷️'}).e;
+const urlCat = n => '?cat=' + encodeURIComponent(n);
+function usoCats(){
+  const m = {};
+  D.articulos.forEach(a => { if(a.estado !== 'botado') catsDe(a).forEach(n => m[n] = (m[n]||0) + 1); });
+  return Object.entries(m).sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0],'es'));
+}
+function todasCats(){
+  const s = CATS.map(c => c.n);
+  usoCats().forEach(([n]) => { if(!s.some(x => norm(x) === norm(n))) s.push(n); });
+  return s;
+}
+
+function toast(msg, ms=2200){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); if(ms) toast._t = setTimeout(() => t.classList.remove('show'), ms);
+}
+function guardarCache(){ try{ localStorage.setItem(CACHE, JSON.stringify(D)); }catch(e){} }
+
+/* ---------- datos: nube o modo prueba ---------- */
+async function cargar(silencioso){
+  try{
+    if(DEMO){ D = demoLeer(); }
+    else{
+      const r = await fetch(API_URL + '?action=all&t=' + Date.now());
+      const j = await r.json(); if(j.error) throw new Error(j.error);
+      D = j; guardarCache();
+    }
+    if($('#sheet').classList.contains('hidden')) render();
+  }catch(e){
+    if(!silencioso) toast('Sin conexión — mostrando lo último guardado');
+  }
+}
+
+/* Todo cambio pasa por aquí: password + doble alerta + guardar */
+async function enviar(body, aviso, msg='Guardado ✓'){
+  const ok = await confirmarCambio(aviso);
+  if(!ok){ return null; }
+  body.quien = await pedirNombre();
+  body.clave = CLAVE;
+  const conFoto = (body.articulo && body.articulo.foto) || (body.caja && body.caja.foto);
+  toast(conFoto ? 'Subiendo foto…' : 'Guardando…', 0);
+  try{
+    let j;
+    if(DEMO) j = demoAccion(body);
+    else{
+      const r = await fetch(API_URL, {method:'POST', body: JSON.stringify(body)});
+      j = await r.json();
+    }
+    if(j.error) throw new Error(j.error);
+    D = {cajas:j.cajas, articulos:j.articulos, historial:j.historial};
+    guardarCache(); render(); toast(msg);
+    return j.result || true;
+  }catch(e){
+    toast('No se pudo guardar: ' + (e.message || 'revisa la conexión'), 4500);
+    return null;
+  }
+}
+
+/* ---------- password + doble alerta ---------- */
+let cancelarPendiente = null;
+function confirmarCambio(c){
+  return new Promise(resolve => {
+    let listo = false;
+    const fin = v => { if(listo) return; listo = true; cancelarPendiente = null; cerrar(); if(!v) toast('Cambio cancelado. No se guardó nada.'); resolve(v); };
+    cancelarPendiente = () => fin(false);
+
+    // Alerta 1: qué vas a cambiar, qué significa y password
+    abrir(`
+      <div class="alerta">⚠️</div>
+      <h2 class="c">Vas a hacer un cambio</h2>
+      <div class="cambio"><b>${esc(c.titulo)}</b>${c.detalles && c.detalles.length ? `<ul>${c.detalles.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}</div>
+      <div class="significa"><b>¿Qué significa esto?</b><p>${esc(c.significa)}</p></div>
+      <form id="fPass">
+        <label class="field"><span>Password para hacer cambios: es <b style="color:var(--ink)">${CLAVE}</b></span>
+          <input name="p" type="tel" inputmode="numeric" maxlength="12" placeholder="Escribe ${CLAVE}" autocomplete="off"></label>
+        <p class="err" hidden>Ese no es el password. Es ${CLAVE}.</p>
+        <div class="btns"><button class="btn main">Continuar</button><button type="button" class="btn" id="cancel1">Cancelar</button></div>
+      </form>`, true);
+    const f = $('#fPass');
+    setTimeout(() => f.p.focus(), 200);
+    $('#cancel1').onclick = () => fin(false);
+    f.onsubmit = e => {
+      e.preventDefault();
+      if(f.p.value.trim() !== CLAVE){
+        f.querySelector('.err').hidden = false;
+        const card = $('#sheetCard'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+        f.p.select(); return;
+      }
+      // Alerta 2: confirmación final
+      abrir(`
+        <div class="alerta">❗</div>
+        <h2 class="c">¿Estás seguro?</h2>
+        <div class="cambio final"><b>${esc(c.titulo)}</b></div>
+        <div class="significa"><p>${esc(c.final || 'El cambio se guarda en la nube enseguida. Todas las personas que escaneen la caja o busquen en la app lo verán así. Queda anotado en el historial con tu nombre.')}</p></div>
+        <div class="btns">
+          <button class="btn main" id="si">Sí, hacer el cambio</button>
+          <button class="btn" id="no">No, cancelar</button>
+        </div>`, true);
+      $('#si').onclick = () => fin(true);
+      $('#no').onclick = () => fin(false);
+    };
+  });
+}
+
+/* Descripciones de cada cambio */
+const listaCats = s => String(s||'').split('|').filter(Boolean).join(', ') || 'ninguna';
+function avisoArticulo(art, prev){
+  const c = nomCaja(art.cajaId);
+  if(!prev){
+    const det = [];
+    if(art.categorias) det.push('Categorías: ' + listaCats(art.categorias));
+    if(art.etiquetas) det.push('Avisos: ' + avisosTxt(art.etiquetas));
+    if(art.nota) det.push('Nota: ' + art.nota);
+    if(art.foto) det.push('Con foto');
+    return {titulo:`Añadir «${art.nombre}» a la ${c}`, detalles:det,
+      significa:`«${art.nombre}» aparecerá como DENTRO de la ${c}. Cualquier persona que escanee esa caja o lo busque en la app lo va a ver ahí.${art.foto ? ' La foto se guardará en Google Drive.' : ''}`};
+  }
+  const det = [], movido = String(prev.cajaId) !== String(art.cajaId);
+  if(prev.nombre !== art.nombre) det.push(`Nombre: «${prev.nombre}» → «${art.nombre}»`);
+  if(movido) det.push(`Caja: ${nomCaja(prev.cajaId)} → ${c}`);
+  if((prev.categorias||'') !== art.categorias) det.push(`Categorías: ${listaCats(prev.categorias)} → ${listaCats(art.categorias)}`);
+  if((prev.etiquetas||'') !== art.etiquetas) det.push(`Avisos: ${avisosTxt(prev.etiquetas)||'ninguno'} → ${avisosTxt(art.etiquetas)||'ninguno'}`);
+  if((prev.nota||'') !== art.nota) det.push(`Nota: «${prev.nota||'—'}» → «${art.nota||'—'}»`);
+  if(art.foto) det.push(prev.fotoId ? 'Foto nueva (la anterior se borra)' : 'Foto nueva');
+  if(!det.length) return null;
+  let sig = movido
+    ? `«${art.nombre}» SALDRÁ de la ${nomCaja(prev.cajaId)} y aparecerá en la ${c}. Si alguien lo busca, la app lo mandará a la ${c}.`
+    : `La información de «${art.nombre}» cambiará para todos los que escaneen la ${c}.`;
+  if(art.foto && prev.fotoId) sig += ' La foto vieja se enviará a la papelera de Google Drive.';
+  return {titulo:`Editar «${prev.nombre}»`, detalles:det, significa:sig};
+}
+function avisoCaja(dat, prev){
+  if(!prev){
+    const n = dat.id || String(D.cajas.reduce((m,x) => Math.max(m, Number(x.id)||0), 0) + 1);
+    return {titulo:`Crear la Caja ${n} «${dat.nombre}»`, detalles:[dat.lugar ? 'Lugar: ' + dat.lugar : 'Sin lugar todavía', dat.foto ? 'Con foto del contenido' : ''].filter(Boolean),
+      significa:`Se crea una caja nueva con su propio enlace para grabarlo en un tag NFC. Aparecerá en la lista de cajas para todos.`};
+  }
+  const det = [];
+  if(prev.nombre !== dat.nombre) det.push(`Nombre: «${prev.nombre}» → «${dat.nombre}»`);
+  if((prev.lugar||'') !== dat.lugar) det.push(`Lugar: «${prev.lugar||'—'}» → «${dat.lugar||'—'}»`);
+  if(color(prev) !== dat.color) det.push('Color nuevo');
+  if(dat.foto) det.push(prev.fotoId ? 'Foto nueva del contenido (la anterior se borra)' : 'Foto del contenido');
+  if(!det.length) return null;
+  return {titulo:`Editar la Caja ${prev.id} «${prev.nombre}»`, detalles:det,
+    significa:`Todos los que escaneen la Caja ${prev.id} verán estos datos nuevos. El tag NFC y la etiqueta impresa siguen sirviendo igual (el número no cambia).${dat.foto && prev.fotoId ? ' La foto vieja se enviará a la papelera de Google Drive.' : ''}`};
+}
+function avisoEstado(a, estado){
+  const c = nomCaja(a.cajaId);
+  if(estado === 'fuera') return {titulo:`Sacar «${a.nombre}» de la ${c}`,
+    significa:`«${a.nombre}» se marcará como FUERA. Todos verán que no está en la caja, que lo sacaste tú y la fecha de hoy. Cuando lo devuelvas, márcalo como devuelto.`};
+  if(estado === 'dentro') return {titulo:`Devolver «${a.nombre}» a la ${c}`,
+    significa:`«${a.nombre}» volverá a aparecer como DENTRO de la ${c} para todos.`};
+  return {titulo:`Botar «${a.nombre}»`, detalles:[`Está en la ${c}`],
+    significa:`«${a.nombre}» DESAPARECERÁ de la ${c} y de las búsquedas para todos. Solo quedará anotado en el historial. Desde la app no se puede deshacer; tendrías que añadirlo otra vez.`,
+    final:`Último aviso: «${a.nombre}» se eliminará de la lista para siempre. ¿Lo botaste de verdad?`};
+}
+
+/* modo prueba (solo este teléfono) */
+function demoLeer(){
+  try{ const d = JSON.parse(localStorage.getItem(DEMO_KEY)); if(d) return d; }catch(e){}
+  const ahora = new Date().toISOString();
+  const d = {
+    cajas:[
+      {id:'1',nombre:'Navidad',lugar:'Closet del pasillo, arriba',color:'#c8553d'},
+      {id:'2',nombre:'Herramientas',lugar:'Marquesina, estante 2',color:'#2a9d8f'},
+      {id:'3',nombre:'Cables y manualidades',lugar:'Cuarto de atrás',color:'#e0a526'}
+    ],
+    articulos:[
+      {id:'d1',cajaId:'1',nombre:'Luces de Navidad',estado:'dentro',etiquetas:'fragil',categorias:'Navidad|Bombillas e iluminación',nota:'3 rollos blancos, 1 de colores',fecha:ahora},
+      {id:'d2',cajaId:'1',nombre:'Bolas del árbol',estado:'dentro',etiquetas:'fragil',categorias:'Navidad|Decoración del hogar',nota:'',fecha:ahora},
+      {id:'d7',cajaId:'1',nombre:'Pistola de silicona',estado:'dentro',etiquetas:'',categorias:'Manualidades|Navidad',nota:'Con 20 barras',fecha:ahora},
+      {id:'d3',cajaId:'2',nombre:'Taladro',estado:'fuera',etiquetas:'frecuente',categorias:'Herramientas',nota:'Con el cargador',quien:'Alguien',fecha:ahora},
+      {id:'d4',cajaId:'2',nombre:'Cinta métrica',estado:'dentro',etiquetas:'frecuente',categorias:'Herramientas|Manualidades',nota:'',fecha:ahora},
+      {id:'d5',cajaId:'3',nombre:'Extensión eléctrica',estado:'dentro',etiquetas:'',categorias:'Electricidad y cables|Navidad',nota:'2 de 6 pies',fecha:ahora},
+      {id:'d6',cajaId:'3',nombre:'Foami y papel de colores',estado:'dentro',etiquetas:'humedad',categorias:'Manualidades|Escuela y oficina',nota:'',fecha:ahora}
+    ],
+    historial:[]
+  };
+  localStorage.setItem(DEMO_KEY, JSON.stringify(d));
+  return d;
+}
+function demoAccion(b){
+  if(b.clave !== CLAVE) return {error:'Password incorrecto'};
+  const d = demoLeer(), ahora = new Date().toISOString(); let res = null;
+  const hist = (cajaId, articulo, accion) => d.historial.unshift({fecha:ahora, cajaId:String(cajaId), articulo, accion, quien:b.quien});
+  if(b.action === 'saveBox'){
+    const c = {...b.caja}; const prev = c.id ? d.cajas.find(x => x.id === String(c.id)) : null;
+    if(!c.id) c.id = String(d.cajas.reduce((m,x) => Math.max(m, Number(x.id)||0), 0) + 1);
+    if(c.foto) c.fotoId = c.foto; delete c.foto;
+    c.nombre = c.nombre || 'Caja ' + c.id;
+    if(prev) Object.assign(prev, c); else d.cajas.push(c);
+    hist(c.id, c.nombre, prev ? 'editó la caja' : 'creó la caja'); res = c;
+  }
+  if(b.action === 'saveItem'){
+    const a = {...b.articulo}; const prev = a.id ? d.articulos.find(x => x.id === a.id) : null;
+    if(a.foto) a.fotoId = a.foto; delete a.foto;
+    if(prev){ const antes = prev.cajaId; Object.assign(prev, a); hist(a.cajaId, a.nombre, antes !== a.cajaId ? 'movió a la caja ' + a.cajaId : 'editó'); res = prev; }
+    else{ Object.assign(a, {id:'d'+Date.now(), estado:'dentro', creado:ahora, fecha:ahora, quien:b.quien}); d.articulos.push(a); hist(a.cajaId, a.nombre, 'añadió'); res = a; }
+  }
+  if(b.action === 'setStatus'){
+    const a = d.articulos.find(x => x.id === b.id);
+    if(a){ Object.assign(a, {estado:b.estado, quien:b.quien, fecha:ahora}); hist(a.cajaId, a.nombre, {dentro:'devolvió',fuera:'sacó',botado:'botó'}[b.estado]); res = a; }
+    d.articulos = d.articulos.filter(x => x.estado !== 'botado');
+  }
+  d.historial = d.historial.slice(0, 300);
+  try{ localStorage.setItem(DEMO_KEY, JSON.stringify(d)); }
+  catch(e){ return {error:'La memoria del teléfono está llena (modo prueba)'}; }
+  return {...d, result:res};
+}
+
+/* ---------- nombre de quien edita ---------- */
+function pedirNombre(){
+  const n = localStorage.getItem(QUIEN);
+  if(n) return Promise.resolve(n);
+  return new Promise(ok => {
+    abrir(`<h2>¿Quién eres?</h2>
+      <p class="meta">Así el historial dirá quién sacó o añadió algo. Solo se pregunta una vez en este teléfono.</p>
+      <form id="fNom"><label class="field"><span>Tu nombre</span><input name="n" autocomplete="given-name" maxlength="30"></label>
+      <div class="btns"><button class="btn main">Continuar</button><button type="button" class="btn" id="omitir">Omitir</button></div></form>`, true);
+    const fin = v => { localStorage.setItem(QUIEN, v); cerrar(); ok(v); };
+    $('#fNom').onsubmit = e => { e.preventDefault(); fin(e.target.n.value.trim() || 'Alguien'); };
+    $('#omitir').onclick = () => fin('Alguien');
+    setTimeout(() => $('#fNom input').focus(), 150);
+  });
+}
+
+/* ---------- fotos: reducir antes de subir ---------- */
+function comprimir(file, max=1280, q=.72){
+  return new Promise((ok, ko) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = () => ko(new Error('No se pudo leer la foto'));
+    img.src = url;
+  });
+}
+function previewFile(input){
+  const f = input.files[0]; if(!f) return;
+  const lbl = input.closest('.filebtn');
+  lbl.querySelector('.fb-txt').textContent = 'Foto lista ✓  (toca para cambiarla)';
+  let im = lbl.querySelector('img'); if(!im){ im = document.createElement('img'); lbl.prepend(im); }
+  im.src = URL.createObjectURL(f);
+}
+
+/* ---------- navegación ---------- */
+function ruta(){
+  const p = new URLSearchParams(location.search);
+  if(p.has('c')) return {v:'caja', id:p.get('c')};
+  if(p.has('cat')) return {v:'cat', n:p.get('cat')};
+  if(p.has('categorias')) return {v:'categorias'};
+  if(p.has('etiquetas')) return {v:'etiquetas'};
+  return {v:'home'};
+}
+function ir(url){ history.pushState({}, '', url); filtro = 'todo'; render(); window.scrollTo(0,0); }
+addEventListener('popstate', () => { if(cancelarPendiente) cancelarPendiente(); else cerrar(); render(); });
+
+/* ---------- vistas ---------- */
+function render(){
+  const r = ruta();
+  if(r.v === 'caja') vCaja(r.id);
+  else if(r.v === 'cat') vCategoria(r.n);
+  else if(r.v === 'categorias') vCategorias();
+  else if(r.v === 'etiquetas') vEtiquetas();
+  else vHome();
+}
+
+function tarjetaCaja(c){
+  const arts = artsDe(c.id), fuera = arts.filter(a => a.estado === 'fuera').length;
+  return `<a class="box-card" href="?c=${esc(c.id)}" data-nav="?c=${esc(c.id)}" style="--c:${esc(color(c))}">
+    <div class="num">${esc(c.id)}</div>
+    <div class="info"><b>${esc(c.nombre)}</b>
+      <small>📍 ${esc(c.lugar || 'Sin lugar')}</small>
+      <small>${arts.length} cosa${arts.length===1?'':'s'}</small></div>
+    ${c.fotoId ? `<img src="${esc(foto(c.fotoId,200))}" alt="" loading="lazy">` : ''}
+  </a>`;
+}
+
+function chipCat(n, cuenta){
+  return `<a class="cat" href="${esc(urlCat(n))}" data-nav="${esc(urlCat(n))}">${catE(n)} ${esc(n)}${cuenta != null ? ` <em>${cuenta}</em>` : ''}</a>`;
+}
+
+function filaArticulo(a, conCaja){
+  const c = caja(a.cajaId);
+  const partes = [];
+  if(conCaja && c) partes.push('📍 ' + esc(c.lugar || c.nombre));
+  if(a.estado === 'fuera') partes.push(conCaja ? `<b style="color:#a85a12;display:inline;font-size:inherit">Fuera</b> · ${esc(a.quien || '')}` : `Lo sacó ${esc(a.quien || '')} · ${fecha(a.fecha)}`);
+  const av = avisosDe(a).map(e => e.e).join('');
+  const cs = catsDe(a).map(n => catE(n) + ' ' + esc(n)).join(' · ');
+  const linea2 = conCaja ? [av, cs].filter(Boolean).join('  ') : '';
+  return `<li class="item ${a.estado === 'fuera' ? 'fuera' : ''}" data-act="item" data-id="${esc(a.id)}">
+    <div class="thumb">${a.fotoId ? `<img src="${esc(foto(a.fotoId,160))}" alt="" loading="lazy">` : '📦'}</div>
+    <div class="info"><b>${esc(a.nombre)}</b>${partes.length ? `<small>${partes.join(' · ')}</small>` : ''}${linea2 ? `<small>${linea2}</small>` : (a.nota && !conCaja ? `<small>${esc(a.nota)}</small>` : '')}</div>
+    ${conCaja && c ? `<span class="pill box" style="--c:${esc(color(c))}">Caja ${esc(c.id)}</span>`
+      : (a.estado === 'fuera' ? '<span class="pill fuera">Fuera</span>' : '')}
+  </li>`;
+}
+
+function vHome(){
+  document.title = '¿Qué hay en la caja?';
+  const voz = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+  $('#app').innerHTML = `
+    ${DEMO ? `<div class="demo">🧪 <b>Modo prueba:</b> los cambios se guardan solo en este teléfono hasta que conectes la hoja de Google.</div>` : ''}
+    <section class="hero">
+      <h1>¿Dónde está…?</h1>
+      <p>Toca una caja o busca algo.</p>
+      <div class="search"><input id="q" type="search" placeholder="Ej. extensión, Navidad, manualidades" value="${esc(busqueda)}" autocomplete="off" style="${voz ? 'padding-right:52px' : ''}">
+        ${voz ? '<button class="mic" data-act="voz" title="Buscar con la voz">🎤</button>' : ''}</div>
+    </section>
+    <div id="res"></div>`;
+  const q = $('#q');
+  q.oninput = () => { busqueda = q.value; pintarResultados(); };
+  pintarResultados();
+}
+
+function pintarResultados(){
+  const t = norm(busqueda.trim());
+  const res = $('#res'); if(!res) return;
+  if(!t){
+    const cs = ordenCajas();
+    res.innerHTML = `<div class="sec-title">Las cajas</div>` +
+      (cs.length ? `<div class="boxes">${cs.map(tarjetaCaja).join('')}</div>`
+        : `<div class="empty">Todavía no hay cajas.<br>Abre el menú <b>☰</b> y toca <b>Nueva caja</b>.</div>`);
+    return;
+  }
+  const palabras = t.split(/\s+/);
+  const coincide = s => palabras.every(p => norm(s).includes(p));
+  const uso = Object.fromEntries(usoCats());
+  const catsMatch = Object.keys(uso).filter(n => coincide(n + ' ' + ((catInfo(n)||{}).k || '')));
+  const arts = D.articulos.filter(a => a.estado !== 'botado' && coincide([a.nombre, a.nota, catsDe(a).join(' '), avisosDe(a).map(e => e.t).join(' ')].join(' ')));
+  const cs = ordenCajas().filter(c => coincide([c.nombre, c.lugar, 'caja ' + c.id].join(' ')));
+  res.innerHTML =
+    (catsMatch.length ? `<div class="sec-title">Categorías</div><div class="cats">${catsMatch.map(n => chipCat(n, uso[n])).join('')}</div>` : '') +
+    (arts.length ? `<div class="sec-title">Cosas (${arts.length})</div><ul class="items">${arts.map(a => filaArticulo(a, true)).join('')}</ul>` : '') +
+    (cs.length ? `<div class="sec-title">Cajas</div><div class="boxes">${cs.map(tarjetaCaja).join('')}</div>` : '') +
+    (!arts.length && !cs.length && !catsMatch.length ? `<div class="empty">No encontré “${esc(busqueda)}” en ninguna caja.</div>` : '');
+}
+
+function vCategorias(){
+  document.title = 'Categorías';
+  const uso = Object.fromEntries(usoCats());
+  const usadas = Object.keys(uso).sort((a,b) => uso[b] - uso[a]);
+  const vacias = CATS.map(c => c.n).filter(n => !uso[n]);
+  $('#app').innerHTML = `
+    <button class="back" data-nav="./">← Inicio</button>
+    <h1 style="font-size:30px">Categorías</h1>
+    <div class="sec-title">Con cosas guardadas (${usadas.length})</div>
+    ${usadas.length ? `<div class="cats">${usadas.map(n => chipCat(n, uso[n])).join('')}</div>` : '<p class="meta">Todavía ninguna. Asígnalas al añadir o editar una cosa.</p>'}
+    <div class="sec-title">Disponibles</div>
+    <div class="cats" style="opacity:.75">${vacias.map(n => chipCat(n)).join('')}</div>
+    <p class="meta" style="margin-top:14px">¿Falta alguna? Escríbela en el buscador de categorías al editar una cosa y toca <b>＋ Crear</b>.</p>`;
+}
+
+function vCategoria(n){
+  document.title = n;
+  const arts = D.articulos.filter(a => a.estado !== 'botado' && catsDe(a).some(x => norm(x) === norm(n)));
+  const porCaja = {};
+  arts.forEach(a => (porCaja[a.cajaId] = porCaja[a.cajaId] || []).push(a));
+  const ids = Object.keys(porCaja).sort((a,b) => Number(a) - Number(b));
+  const fuera = arts.filter(a => a.estado === 'fuera').length;
+  $('#app').innerHTML = `
+    <button class="back" data-nav="./">← Inicio</button>
+    <section class="cat-hero"><div class="e">${catE(n)}</div><h1>${esc(n)}</h1>
+      <p class="meta" style="margin:6px 0 0">${arts.length} cosa${arts.length===1?'':'s'} en ${ids.length} caja${ids.length===1?'':'s'}${fuera ? ` · ${fuera} fuera` : ''}</p></section>
+    ${ids.map(id => { const c = caja(id); return `
+      <div class="grp">
+        <a class="grp-h" href="?c=${esc(id)}" data-nav="?c=${esc(id)}"><span class="pill box" style="--c:${esc(color(c))}">Caja ${esc(id)}</span>
+          <b>${esc(c ? c.nombre : '')}</b><small>📍 ${esc(c ? c.lugar : '')}</small></a>
+        <ul class="items">${porCaja[id].sort((a,b) => a.nombre.localeCompare(b.nombre,'es')).map(a => filaArticulo(a)).join('')}</ul>
+      </div>`; }).join('') || '<div class="empty">No hay nada guardado en esta categoría todavía.</div>'}`;
+}
+
+function vCaja(id){
+  const c = caja(id);
+  if(!c){
+    $('#app').innerHTML = `<button class="back" data-nav="./">← Todas las cajas</button>
+      <div class="empty"><h2>Caja ${esc(id)}</h2><p>Esta caja todavía no está registrada${D.cajas.length ? '' : ' (o la información aún está cargando)'}.</p>
+      <button class="btn main" data-act="newBox" data-id="${esc(id)}">Registrar caja ${esc(id)}</button></div>`;
+    return;
+  }
+  document.title = `Caja ${c.id} · ${c.nombre}`;
+  const arts = artsDe(c.id).sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
+  const fuera = arts.filter(a => a.estado === 'fuera');
+  const lista = filtro === 'dentro' ? arts.filter(a => a.estado === 'dentro') : filtro === 'fuera' ? fuera : arts;
+  const hist = D.historial.filter(h => String(h.cajaId) === String(c.id)).slice(0, 25);
+  const cats = {}; arts.forEach(a => catsDe(a).forEach(n => cats[n] = (cats[n]||0) + 1));
+  const vista = filtro === 'fuera' ? fuera : [...arts.filter(a => a.estado !== 'fuera'), ...fuera];
+  $('#app').innerHTML = `
+    <button class="back" data-nav="./">← Todas las cajas</button>
+    <section class="box-hero" style="--c:${esc(color(c))}">
+      <div class="box-tag">CAJA</div><div class="box-num">${esc(c.id)}</div>
+      <h1>${esc(c.nombre)}</h1><p>📍 ${esc(c.lugar || 'Sin lugar asignado')}</p>
+    </section>
+    ${c.fotoId ? `<div class="box-photo" style="border-style:solid"><img src="${esc(foto(c.fotoId,1200))}" alt="Foto de la caja ${esc(c.id)}" data-act="verFoto" data-id="${esc(foto(c.fotoId,1600))}"></div>` : ''}
+    ${filtro === 'fuera' ? `<div class="demo" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">Mostrando solo lo que está fuera <button class="btn" style="padding:6px 12px" data-act="filtro" data-id="todo">Ver todo</button></div>` : ''}
+    <div class="sec-title">Lo que hay dentro (${arts.length - fuera.length})</div>
+    ${vista.length ? `<ul class="items">${vista.map(a => filaArticulo(a)).join('')}</ul>`
+      : `<div class="empty">${arts.length ? 'Nada fuera de la caja.' : 'Esta caja está vacía.<br>Para añadir algo, abre el menú <b>☰</b>.'}</div>`}`;
+}
+
+function vEtiquetas(){
+  document.title = 'Etiquetas para imprimir';
+  const cs = ordenCajas();
+  $('#app').innerHTML = `
+    <div class="no-print"><button class="back" data-nav="./">← Todas las cajas</button>
+    <h1 style="font-size:28px">Etiquetas</h1>
+    <p class="meta" style="margin-top:6px">Recórtalas y pégalas en el frente de cada caja. El QR abre la misma página que el tag NFC.</p>
+    <button class="btn main" style="width:100%" onclick="print()">🖨️ Imprimir</button></div>
+    <div class="labels">${cs.map(c => `
+      <div class="label" style="--c:${esc(color(c))}">
+        <div class="n">${esc(c.id)}</div>
+        <div class="t"><b>${esc(c.nombre)}</b><small>📍 ${esc(c.lugar || '')}</small><br><small>Escanea o acerca el teléfono a la tapa</small></div>
+        ${qrSVG(enlace(c.id))}
+      </div>`).join('') || '<div class="empty">No hay cajas todavía.</div>'}</div>`;
+}
+
+function qrSVG(texto){
+  if(typeof qrcode === 'undefined') return '';
+  const q = qrcode(0, 'M'); q.addData(texto); q.make();
+  return q.createSvgTag({cellSize:4, margin:0, scalable:true});
+}
+
+/* ---------- hojas (formularios) ---------- */
+function abrir(html, modal){
+  $('#sheetCard').innerHTML = '<div class="grab"></div>' + html;
+  $('#sheet').classList.remove('hidden'); $('#sheet').dataset.modal = modal ? '1' : '';
+  document.body.style.overflow = 'hidden';
+}
+function cerrar(){ $('#sheet').classList.add('hidden'); document.body.style.overflow = ''; }
+
+function hojaArticulo(id){
+  const a = D.articulos.find(x => x.id === id); if(!a) return;
+  const c = caja(a.cajaId);
+  const av = avisosDe(a), cs = catsDe(a);
+  abrir(`
+    ${a.fotoId ? `<img class="big-photo" src="${esc(foto(a.fotoId,1200))}" alt="" data-act="verFoto" data-id="${esc(foto(a.fotoId,1600))}">` : ''}
+    <h2>${esc(a.nombre)}</h2>
+    <p class="meta">Caja ${esc(a.cajaId)}${c ? ' · ' + esc(c.nombre) + (c.lugar ? ' · 📍 ' + esc(c.lugar) : '') : ''}${a.estado === 'fuera'
+      ? `<br><b style="color:#a85a12">Ahora está fuera</b> — lo sacó ${esc(a.quien)} el ${fecha(a.fecha)}` : ''}</p>
+    ${a.nota ? `<p style="font-size:17px">${esc(a.nota)}</p>` : ''}
+    ${av.length ? `<div class="cats" style="margin-bottom:8px">${av.map(e => `<span class="cat">${e.e} ${e.t}</span>`).join('')}</div>` : ''}
+    <div class="btns"><button class="btn main" data-act="close">Cerrar</button>
+      <button class="btn" data-act="opciones">⚙️ Más opciones</button></div>
+    <div class="opciones" id="opc" hidden>
+      ${cs.length ? `<div class="menu-sec">Categorías</div><div class="cats">${cs.map(n => chipCat(n)).join('')}</div>` : ''}
+      <div class="menu-sec">Cambiar algo</div>
+      ${a.estado === 'fuera'
+        ? `<button class="menu-btn" data-act="estado" data-id="${esc(a.id)}" data-v="dentro"><span>↩️</span>Lo devolví a la caja</button>`
+        : `<button class="menu-btn" data-act="estado" data-id="${esc(a.id)}" data-v="fuera"><span>📤</span>Lo saqué de la caja</button>`}
+      <button class="menu-btn" data-act="editItem" data-id="${esc(a.id)}"><span>✏️</span>Editar, categorías, foto o mover</button>
+      <button class="menu-btn" style="color:var(--bad)" data-act="estado" data-id="${esc(a.id)}" data-v="botado"><span>🗑️</span>Lo boté / ya no existe</button>
+    </div>`);
+}
+
+/* Menú ☰ */
+function abrirMenu(){
+  const r = ruta(), c = r.v === 'caja' ? caja(r.id) : null;
+  const b = (act, ico, txt, id='') => `<button class="menu-btn" data-act="${act}" data-id="${esc(id)}"><span>${ico}</span>${txt}</button>`;
+  const l = (url, ico, txt) => `<a class="menu-btn" href="${url}" data-nav="${url}"><span>${ico}</span>${txt}</a>`;
+  abrir(`<h2>Menú</h2>
+    ${c ? `<div class="menu-sec">Caja ${esc(c.id)} · ${esc(c.nombre)}</div>
+      ${b('addItem','＋','Añadir algo a esta caja', c.id)}
+      ${b('editBox','✏️','Editar caja: nombre, lugar o foto', c.id)}
+      ${b('filtro','📤','Ver solo lo que está fuera', 'fuera')}
+      ${b('historial','🕘','Últimos movimientos de esta caja', c.id)}` : ''}
+    <div class="menu-sec">General</div>
+    ${l('./','🏠','Inicio: todas las cajas')}
+    ${l('?categorias','🗂️','Categorías (Navidad, manualidades…)')}
+    ${b('newBox','📦','Nueva caja')}
+    ${l('?etiquetas','🏷️','Etiquetas para imprimir')}
+    ${b('refresh','↻','Actualizar')}
+    ${b('nombre','👤','Cambiar mi nombre' + (localStorage.getItem(QUIEN) ? ' (' + esc(localStorage.getItem(QUIEN)) + ')' : ''))}
+    <div class="btns"><button class="btn" data-act="close">Cerrar</button></div>`);
+}
+function hojaHistorial(id){
+  const h = D.historial.filter(x => String(x.cajaId) === String(id)).slice(0, 40);
+  abrir(`<h2>🕘 Movimientos de la caja ${esc(id)}</h2>
+    ${h.length ? `<ul class="items" style="gap:6px">${h.map(x => `<li style="list-style:none;font-size:15px;padding:8px 0;border-bottom:1px solid var(--line)">
+      <b>${esc(x.quien)}</b> ${esc(x.accion)} «${esc(x.articulo)}» <span style="color:var(--mut)">· ${fecha(x.fecha)}</span></li>`).join('')}</ul>`
+      : '<p class="meta">Todavía no hay movimientos.</p>'}
+    <div class="btns"><button class="btn" data-act="close">Cerrar</button></div>`);
+}
+
+/* Selector de categorías con buscador */
+function montarPicker(cont, inicial){
+  let sel = [...inicial];
+  cont.innerHTML = `<div class="sel"></div><div class="search"><input type="search" placeholder="Busca o crea: navidad, herramienta…" autocomplete="off"></div><div class="sugs"></div>`;
+  const inp = cont.querySelector('input');
+  const pintar = () => {
+    cont.querySelector('.sel').innerHTML = sel.length
+      ? sel.map(n => `<button type="button" class="cat on" data-n="${esc(n)}">${catE(n)} ${esc(n)} ✕</button>`).join('')
+      : '<span class="meta" style="margin:0">Ninguna escogida — toca las que apliquen 👇</span>';
+    const t = norm(inp.value.trim());
+    const todas = todasCats();
+    const lista = todas.filter(n => !sel.includes(n) && (!t || t.split(/\s+/).every(p => norm(n + ' ' + ((catInfo(n)||{}).k||'')).includes(p))));
+    const limpio = inp.value.trim().replace(/[|,]/g, ' ').replace(/\s+/g, ' ').slice(0, 40);
+    const crear = limpio && !todas.some(n => norm(n) === norm(limpio))
+      ? `<button type="button" class="cat new" data-new="${esc(limpio.charAt(0).toUpperCase() + limpio.slice(1))}">＋ Crear «${esc(limpio)}»</button>` : '';
+    cont.querySelector('.sugs').innerHTML = lista.map(n => `<button type="button" class="cat" data-n="${esc(n)}">${catE(n)} ${esc(n)}</button>`).join('') + crear
+      || '<span class="meta">No hay más categorías.</span>';
+  };
+  cont.addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b || !cont.contains(b)) return;
+    const n = b.dataset.new || b.dataset.n;
+    if(sel.includes(n)) sel = sel.filter(x => x !== n);
+    else { sel.push(n); inp.value = ''; }
+    pintar();
+  });
+  inp.oninput = pintar;
+  inp.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); const b = cont.querySelector('.sugs button'); if(b && inp.value.trim()) b.click(); } };
+  pintar();
+  return () => sel;
+}
+
+function formArticulo(cajaId, id, borrador){
+  const prev = id ? D.articulos.find(x => x.id === id) : null;
+  const a = borrador || prev || {cajaId, nombre:'', nota:'', etiquetas:'', categorias:''};
+  const tags = String(a.etiquetas || '').split(',').map(s => s.trim());
+  const fotoVista = (borrador && borrador.foto) || (prev && prev.fotoId ? foto(prev.fotoId,200) : '');
+  abrir(`
+    <h2>${id ? 'Editar' : 'Añadir a la caja ' + esc(cajaId)}</h2>
+    <form id="fArt">
+      <label class="field"><span>¿Qué es?</span><input name="nombre" required maxlength="80" value="${esc(a.nombre)}" placeholder="Ej. Pistola de silicona"></label>
+      <label class="filebtn">${fotoVista ? `<img src="${esc(fotoVista)}" alt="">` : ''}<span class="fb-txt">📷 ${borrador && borrador.foto ? 'Foto lista ✓ (toca para cambiarla)' : fotoVista ? 'Cambiar foto' : 'Tomar o escoger foto (opcional)'}</span><input type="file" name="foto" accept="image/*"></label>
+      <div class="field picker" style="margin-top:14px"><span>Categorías (para qué sirve)</span><div id="pick"></div></div>
+      <div class="field"><span>Avisos</span><div class="tags">${AVISOS.map(e =>
+        `<label class="tagchk"><input type="checkbox" name="etq" value="${e.k}" ${tags.includes(e.k) ? 'checked' : ''}><span>${e.e} ${e.t}</span></label>`).join('')}</div></div>
+      <label class="field"><span>Nota (cantidad, detalles, palabras para buscarlo)</span><textarea name="nota" rows="2" maxlength="300" placeholder="Ej. 2 de 6 pies, color blanco">${esc(a.nota)}</textarea></label>
+      ${id ? `<label class="field"><span>Caja</span><select name="cajaId">${ordenCajas().map(c =>
+        `<option value="${esc(c.id)}" ${String(c.id) === String(a.cajaId) ? 'selected' : ''}>Caja ${esc(c.id)} · ${esc(c.nombre)}</option>`).join('')}</select></label>` : ''}
+      <div class="btns">
+        <button class="btn main" name="ok" value="1">Guardar</button>
+        ${id ? '' : '<button class="btn" name="otro" value="1">Guardar y añadir otro</button>'}
+        <button type="button" class="btn" data-act="close">Cancelar</button>
+      </div>
+    </form>`);
+  const f = $('#fArt');
+  const getCats = montarPicker($('#pick'), catsDe(a));
+  f.foto.onchange = () => previewFile(f.foto);
+  if(!id && !borrador) setTimeout(() => f.nombre.focus(), 200);
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const otro = e.submitter && e.submitter.name === 'otro';
+    const art = {
+      id: id || '',
+      cajaId: id ? f.cajaId.value : cajaId,
+      nombre: f.nombre.value.trim(),
+      nota: f.nota.value.trim(),
+      etiquetas: [...f.querySelectorAll('[name=etq]:checked')].map(x => x.value).join(','),
+      categorias: getCats().join('|')
+    };
+    if(!art.nombre) return;
+    const file = f.foto.files[0];
+    if(file){ try{ art.foto = await comprimir(file); }catch(err){ toast(err.message); return; } }
+    else if(borrador && borrador.foto) art.foto = borrador.foto;
+    const aviso = avisoArticulo(art, prev);
+    if(!aviso){ cerrar(); toast('No hiciste cambios'); return; }
+    const r = await enviar({action:'saveItem', articulo:art}, aviso, id ? 'Guardado ✓' : `«${art.nombre}» añadido ✓`);
+    if(!r){ formArticulo(cajaId, id, art); return; }   // cancelado o error: vuelve al formulario sin perder lo escrito
+    if(otro) formArticulo(cajaId);
+  };
+}
+
+function formCaja(id, idSugerido, borrador){
+  const prev = id ? caja(id) : null;
+  const c = borrador || prev || {nombre:'', lugar:'', color:''};
+  const sig = idSugerido || String(D.cajas.reduce((m,x) => Math.max(m, Number(x.id)||0), 0) + 1);
+  const col = c.color || (prev ? color(prev) : COLORES[(Number(sig) - 1) % COLORES.length]);
+  const fotoVista = (borrador && borrador.foto) || (prev && prev.fotoId ? foto(prev.fotoId,200) : '');
+  abrir(`
+    <h2>${id ? 'Editar caja ' + esc(id) : 'Nueva caja ' + esc(sig)}</h2>
+    <form id="fCaja">
+      <label class="field"><span>Nombre</span><input name="nombre" maxlength="60" value="${esc(c.nombre)}" placeholder="Ej. Navidad, Herramientas, Manualidades" required></label>
+      <label class="field"><span>¿Dónde está guardada?</span><input name="lugar" maxlength="80" value="${esc(c.lugar)}" placeholder="Ej. Closet del pasillo, arriba"></label>
+      <div class="field"><span>Color</span><div class="colors">${COLORES.map(k =>
+        `<label><input type="radio" name="color" value="${k}" ${k === col ? 'checked' : ''}><i style="--c:${k}"></i></label>`).join('')}</div></div>
+      <label class="filebtn">${fotoVista ? `<img src="${esc(fotoVista)}" alt="">` : ''}<span class="fb-txt">📷 ${fotoVista ? 'Cambiar foto del contenido' : 'Foto del contenido, vista desde arriba (opcional)'}</span><input type="file" name="foto" accept="image/*"></label>
+      <div class="btns"><button class="btn main">Guardar</button><button type="button" class="btn" data-act="close">Cancelar</button></div>
+    </form>
+    ${id ? bloqueEnlace(id) : ''}`);
+  const f = $('#fCaja');
+  f.foto.onchange = () => previewFile(f.foto);
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const datos = {id: id || idSugerido || '', nombre: f.nombre.value.trim(), lugar: f.lugar.value.trim(), color: f.color.value};
+    if(!datos.nombre) return;
+    const file = f.foto.files[0];
+    if(file){ try{ datos.foto = await comprimir(file); }catch(err){ toast(err.message); return; } }
+    else if(borrador && borrador.foto) datos.foto = borrador.foto;
+    const aviso = avisoCaja(datos, prev);
+    if(!aviso){ cerrar(); toast('No hiciste cambios'); return; }
+    const r = await enviar({action:'saveBox', caja:datos}, aviso, id ? 'Caja guardada ✓' : 'Caja creada ✓');
+    if(!r){ formCaja(id, idSugerido, datos); return; }
+    if(!id){ ir('?c=' + r.id); abrir(`<h2>¡Caja ${esc(r.id)} lista! 🎉</h2>${bloqueEnlace(r.id)}
+      <div class="btns"><button class="btn main" data-act="addItem" data-id="${esc(r.id)}">＋ Añadir lo que tiene dentro</button></div>`); }
+  };
+}
+
+function bloqueEnlace(id){
+  return `<div class="linkbox">
+    <b>🏷️ Enlace para el tag NFC</b>
+    <code>${esc(enlace(id))}</code>
+    <button class="btn" style="width:100%" data-act="copiar" data-id="${esc(id)}">Copiar enlace</button>
+    <div class="qr">${qrSVG(enlace(id))}</div>
+    <ol><li>Abre la app <b>NFC Tools</b> → <b>Escribir</b>.</li><li><b>Agregar un registro</b> → <b>URL / URI</b> y pega el enlace.</li><li><b>Escribir</b> y acerca el teléfono al tag.</li></ol>
+  </div>`;
+}
+
+/* ---------- búsqueda por voz ---------- */
+function escuchar(btn){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if(!SR) return;
+  const r = new SR(); r.lang = 'es-PR'; r.interimResults = false;
+  btn.classList.add('on'); toast('Te escucho… di qué buscas', 0);
+  r.onresult = e => {
+    const t = e.results[0][0].transcript.replace(/^(dónde está|donde esta|dónde están|donde estan|busca|buscar)\s+(el|la|los|las)?\s*/i, '').replace(/[?¿.]/g,'').trim();
+    busqueda = t; const q = $('#q'); if(q) q.value = t; pintarResultados();
+  };
+  r.onend = () => { btn.classList.remove('on'); toast('', 1); };
+  r.onerror = () => { btn.classList.remove('on'); toast('No pude escuchar. Intenta otra vez.'); };
+  r.start();
+}
+
+/* ---------- clics ---------- */
+document.addEventListener('click', async e => {
+  const nav = e.target.closest('[data-nav]');
+  if(nav){ e.preventDefault(); if(cancelarPendiente) cancelarPendiente(); cerrar(); ir(nav.dataset.nav); return; }
+  const el = e.target.closest('[data-act]'); if(!el) return;
+  const id = el.dataset.id, act = el.dataset.act;
+  if(act === 'close'){ if($('#sheet').dataset.modal && !el.classList.contains('btn')){ if(cancelarPendiente) cancelarPendiente(); return; } cerrar(); }
+  else if(act === 'refresh'){ cerrar(); toast('Actualizando…', 0); await cargar(); toast('Al día ✓'); }
+  else if(act === 'voz') escuchar(el);
+  else if(act === 'menu') abrirMenu();
+  else if(act === 'opciones'){ const o = $('#opc'); o.hidden = !o.hidden; el.hidden = true; o.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  else if(act === 'historial') hojaHistorial(id);
+  else if(act === 'verFoto') window.open(id, '_blank');
+  else if(act === 'nombre'){ localStorage.removeItem(QUIEN); cerrar(); await pedirNombre(); toast('Nombre guardado ✓'); }
+  else if(act === 'item') hojaArticulo(id);
+  else if(act === 'addItem'){ cerrar(); formArticulo(id); }
+  else if(act === 'editItem') formArticulo(null, id);
+  else if(act === 'newBox'){ cerrar(); formCaja(null, id); }
+  else if(act === 'editBox'){ cerrar(); formCaja(id); }
+  else if(act === 'filtro'){ cerrar(); filtro = id; render(); window.scrollTo(0,0); }
+  else if(act === 'estado'){
+    const a = D.articulos.find(x => x.id === id); if(!a) return;
+    const v = el.dataset.v;
+    await enviar({action:'setStatus', id, estado:v}, avisoEstado(a, v),
+      v === 'fuera' ? 'Marcado como fuera 📤' : v === 'dentro' ? 'De vuelta en la caja ↩️' : 'Eliminado de la caja 🗑️');
+  }
+  else if(act === 'copiar'){
+    const t = enlace(id);
+    try{ await navigator.clipboard.writeText(t); toast('Enlace copiado ✓'); }
+    catch(err){ prompt('Copia este enlace:', t); }
+  }
+});
+addEventListener('keydown', e => { if(e.key === 'Escape'){ if(cancelarPendiente) cancelarPendiente(); else cerrar(); } });
+document.addEventListener('visibilitychange', () => { if(!document.hidden && !DEMO && $('#sheet').classList.contains('hidden')) cargar(true); });
+
+/* ---------- inicio ---------- */
+try{ const c = JSON.parse(localStorage.getItem(CACHE)); if(c && !DEMO) D = c; }catch(e){}
+render();
+cargar();
+</script>
+</body>
+</html>
